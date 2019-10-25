@@ -1,0 +1,12 @@
+{
+  "baseUrl": "http://localhost:5000",
+  "reporter": "junit",
+  "reporterOptions": {
+    "mochaFile": "tests-results/output.xml",
+    "toConsole": true
+  },
+  "env": {
+    "login_email": "test1@test.net",
+    "login_password": "aaaAAA!!!111"
+  }
+}

@@ -1,0 +1,121 @@
+﻿@page
+@using Humanizer
+@model AnalyticsModel
+@{
+    ViewData["Title"] = ManageNavPages.Analytics;
+    ViewData["ActivePage"] = ManageNavPages.Analytics;
+}
+
+@section scripts{
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+    <script type="text/javascript">
+
+        google.charts.load('current', { packages: ['corechart'] });
+        google.charts.setOnLoadCallback(LoadData);
+
+        function LoadData() {
+            $.ajax({
+                url: '/api/chartdata',
+                dataType: "json",
+                type: "GET",
+                error: function (xhr, status, error) {
+                    var err = eval("(" + xhr.responseText + ")");
+                    toastr.error(err.message);
+                },
+                success: function (data) {
+                    EventChart(data);
+                    return false;
+                }
+            });
+            return false;
+        }
+
+        function EventChart(data) {
+            var dataArray = [
+                ["Event name", "Event Count", { role: 'style' }]
+            ];
+
+            $.each(data,
+                function (i, item) {
+                    dataArray.push([item.eventName, item.eventCount, item.style]);
+                });
+
+            var dataset = google.visualization.arrayToDataTable(dataArray, false);
+
+            var pieChart = new google.visualization.PieChart(document.getElementById('piechart'));
+
+            var pieOptions = {
+                title: 'Last 30 days',
+                is3D: true,
+                chartArea: { left: 20, top: 20, width: '85%', height: '70%' }
+            };
+
+            pieChart.draw(dataset, pieOptions);
+
+            var barChart = new google.visualization.BarChart(document.getElementById('barchart'));
+
+            var barOptions = {
+                title: 'Last 30 days',
+                chartArea: { left: 20, top: 20, width: '85%', height: '70%' },
+                legend: { 'position': 'none' },
+                hAxis: { title: 'Event count' },
+                vAxis: { title: 'Event type'}
+            };
+
+            barChart.draw(dataset, barOptions);
+
+            return false;
+        }
+    </script>
+}
+
+<div class="container-fluid">
+    <div class="card-deck">
+        <div class="card text-black-50 bg-white mb-3" style="max-width: 50rem;">
+            <div class="card-header">System stats</div>
+            <div class="card-body" id="piechart"></div>
+        </div>
+        <div class="card text-black-50 bg-white mb-3" style="max-width: 50rem;">
+            <div class="card-header">System stats</div>
+            <div class="card-body" id="barchart"></div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div id="accordion">
+        <div class="card-deck">
+            @foreach (var summary in Model.EventsIndex.Summaries.OrderByDescending(s => s.LastCaptured))
+            {
+                <div class="card @summary.BootstrapClass" style="max-width: 50rem;">
+                    <div class="card-header" id="heading-@summary.EventId">@summary.EventCategory - @summary.EventType</div>
+                    <div class="card-body">
+                        <h5 class="card-title">@summary.EventName <a href="#c-@summary.EventId" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-@summary.EventId" class="badge badge-warning">@summary.NumberOfEvents</a></h5>
+                        <p class="card-text">This is the number of events that have been recorded in the system.</p>
+                    </div>
+                    <div class="card-footer"><small>Last event @summary.LastCaptured.ToLocalTime().Humanize()</small></div>
+                </div>
+
+            }
+        </div>
+        @foreach (var summary in Model.EventsIndex.Summaries)
+        {
+            <div id="c-@summary.EventId" class="collapse" aria-labelledby="heading-@summary.EventId" data-parent="#accordion">
+                <div class="card bg-light mb-3">
+                    <div class="card-header @summary.BootstrapClass"><h5>Events <span class="badge badge-warning">@summary.NumberOfEvents</span></h5></div>
+                    <div class="card-body">
+                        <table class="table table-sm table-striped">
+                            <tbody>
+                                @foreach (var timestamp in summary.EventTimestamps.OrderByDescending(t => t))
+                                {
+                                    <tr class="card-text"><td>@timestamp.Humanize()</td><td>@timestamp.ToLocalTime().ToString("F")</td> </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,23 @@
+@using AuthSample.Areas.Identity.Pages.Account.Manage
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+    <ul class="navbar-nav">
+        @if (SignInManager.IsSignedIn(User))
+        {
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Analytics" title="Manage">@ManageNavPages.Analytics</a>
+            </li>
+            <li class="nav-item">
+                <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/", new { area = "" })" method="post">
+                    <button type="submit" class="btn btn-primary">Logout</button>
+                </form>
+            </li>
+        }
+        else
+        {
+            <li class="nav-item">
+                <a class="btn btn-primary btn-lg" asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="/Identity/Account/Manage/Analytics">Login</a>
+            </li>
+        }
+    </ul>
