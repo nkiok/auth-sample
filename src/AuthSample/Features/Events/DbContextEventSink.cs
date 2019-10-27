@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using AuthSample.Data;
 using AuthSample.Data.Models;
-using AuthSample.Features.Account.Models;
 using EnsureThat;
 
 namespace AuthSample.Features.Events
@@ -37,15 +36,18 @@ namespace AuthSample.Features.Events
                     break;
                 case UserRegistrationAttemptFailureEvent userRegistrationAttemptFailureEvent:
                     eventLog.UserId = userRegistrationAttemptFailureEvent.UserId;
+                    eventLog.UserName = userRegistrationAttemptFailureEvent.UserName;
                     break;
                 case UserRegistrationSuccessEvent userRegistrationSuccessEvent:
                     eventLog.UserId = userRegistrationSuccessEvent.UserId;
                     break;
                 case UserRegistrationFailureEvent userRegistrationFailureEvent:
                     eventLog.UserId = userRegistrationFailureEvent.UserId;
+                    eventLog.UserName = userRegistrationFailureEvent.UserName;
                     break;
                 case AgeValidationFailureEvent ageValidationFailureEvent:
                     eventLog.UserId = ageValidationFailureEvent.UserId;
+                    eventLog.UserName = ageValidationFailureEvent.UserName;
                     break;
             }
 

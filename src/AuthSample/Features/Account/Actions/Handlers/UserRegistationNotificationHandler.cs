@@ -23,7 +23,7 @@ namespace AuthSample.Features.Account.Actions.Handlers
             }
             else
             {
-                await _eventService.RaiseAsync(new UserRegistrationFailureEvent(notification.UserId));
+                await _eventService.RaiseAsync(new UserRegistrationFailureEvent(notification.UserId, notification.UserName));
             }
         }
     }

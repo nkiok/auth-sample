@@ -47,6 +47,8 @@ namespace AuthSample.Areas.Identity.Pages.Account
 
         public async Task<IActionResult> OnPostAsync()
         {
+            var accountRegistration = new AccountRegistrationModel(Input.Name, Input.Email, Input.DateOfBirth);
+
             if (!ModelState.IsValid)
             {
                 if(ModelState.Values.SelectMany(v => v.Errors).Any(e => e.ErrorMessage == ValidationMessages.AgeCheckFailMessage))
@@ -54,30 +56,30 @@ namespace AuthSample.Areas.Identity.Pages.Account
                     await _mediator.Publish(new AgeValidationFailureNotification(Input.Email, Input.Name));
                 }
 
+                var registrationAttempt = await _mediator.Send(new RegistrationAttemptedRequest(accountRegistration, ModelState.IsValid));
+
+                if (registrationAttempt.IsFailure)
+                {
+                    ModelState.AddModelError(string.Empty, registrationAttempt.Error);
+
+                    return Page();
+                }
+
                 return Page();
             }
-
-            var accountRegistration = new AccountRegistrationModel(Input.Name, Input.Email, Input.DateOfBirth);
 
             var registrationContext = await _mediator.Send(new RegisterAccountRequest(accountRegistration, ModelState.IsValid));
 
             if (!registrationContext.IdentityResult.Succeeded)
             {
+                await _mediator.Publish(new UserRegistrationAttemptNotification(accountRegistration.Name, accountRegistration.Email, registrationContext.IdentityResult.Succeeded));
+
                 foreach (var error in registrationContext.IdentityResult.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
 
                     return Page();
                 }
-            }
-
-            var registrationAttempt = await _mediator.Send(new RegistrationAttemptedRequest(accountRegistration, ModelState.IsValid));
-
-            if (registrationAttempt.IsFailure)
-            {
-                ModelState.AddModelError(string.Empty, registrationAttempt.Error);
-
-                return Page();
             }
 
             return RedirectToPage("./SetupPassword", new { userId = registrationContext.User.Id, code = registrationContext.PasswordToken });

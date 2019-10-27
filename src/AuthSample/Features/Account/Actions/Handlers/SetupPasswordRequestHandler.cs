@@ -34,7 +34,7 @@ namespace AuthSample.Features.Account.Actions.Handlers
 
             var result = await _userManager.ResetPasswordAsync(user, request.Model.Code, request.Model.Password);
 
-            await _mediator.Publish(new UserRegistrationNotification(user.Id, result.Succeeded), cancellationToken);
+            await _mediator.Publish(new UserRegistrationNotification(user.Id, user.UserName, result.Succeeded), cancellationToken);
 
             return result;
         }

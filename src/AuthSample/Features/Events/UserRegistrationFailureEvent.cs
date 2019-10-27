@@ -2,15 +2,19 @@
 {
     public class UserRegistrationFailureEvent : Event
     {
-        public UserRegistrationFailureEvent(string userId)
+        public UserRegistrationFailureEvent(string userId, string userName)
             : base(EventCategories.Registration,
                 "User Registration Failure",
                 EventIds.UserRegistration,
                 EventTypes.Failure)
         {
             UserId = userId;
+
+            UserName = userName;
         }
 
-        public string UserId { get; set; }
+        public string UserId { get; }
+
+        public string UserName { get; }
     }
 }
