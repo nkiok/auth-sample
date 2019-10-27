@@ -61,8 +61,6 @@ namespace AuthSample.Areas.Identity.Pages.Account
                 if (registrationAttempt.IsFailure)
                 {
                     ModelState.AddModelError(string.Empty, registrationAttempt.Error);
-
-                    return Page();
                 }
 
                 return Page();
@@ -77,9 +75,9 @@ namespace AuthSample.Areas.Identity.Pages.Account
                 foreach (var error in registrationContext.IdentityResult.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
-
-                    return Page();
                 }
+
+                return Page();
             }
 
             return RedirectToPage("./SetupPassword", new { userId = registrationContext.User.Id, code = registrationContext.PasswordToken });
